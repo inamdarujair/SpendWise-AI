@@ -1,0 +1,14 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const recurring_controller_1 = require("./recurring.controller");
+const validate_1 = require("../../middleware/validate");
+const auth_1 = require("../../middleware/auth");
+const recurring_validation_1 = require("./recurring.validation");
+const router = (0, express_1.Router)();
+router.use(auth_1.requireAuth);
+router.get('/', recurring_controller_1.RecurringController.getRules);
+router.post('/', (0, validate_1.validate)(recurring_validation_1.createRecurringRuleSchema), recurring_controller_1.RecurringController.createRule);
+router.patch('/:id', (0, validate_1.validate)(recurring_validation_1.updateRecurringRuleSchema), recurring_controller_1.RecurringController.updateRule);
+router.delete('/:id', recurring_controller_1.RecurringController.deleteRule);
+exports.default = router;

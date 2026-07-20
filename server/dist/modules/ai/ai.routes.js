@@ -1,0 +1,12 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const ai_controller_1 = require("./ai.controller");
+const auth_1 = require("../../middleware/auth");
+const router = (0, express_1.Router)();
+router.use(auth_1.requireAuth);
+router.post('/categorize', ai_controller_1.AIController.categorize);
+router.get('/insights', ai_controller_1.AIController.getInsights);
+router.post('/extract-receipt', ai_controller_1.AIController.extractReceipt);
+router.post('/advisor', ai_controller_1.AIController.askAdvisor);
+exports.default = router;

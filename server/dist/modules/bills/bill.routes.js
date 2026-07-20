@@ -1,0 +1,14 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const bill_controller_1 = require("./bill.controller");
+const validate_1 = require("../../middleware/validate");
+const auth_1 = require("../../middleware/auth");
+const bill_validation_1 = require("./bill.validation");
+const router = (0, express_1.Router)();
+router.use(auth_1.requireAuth);
+router.get('/', bill_controller_1.BillController.getBills);
+router.post('/', (0, validate_1.validate)(bill_validation_1.createBillSchema), bill_controller_1.BillController.createBill);
+router.patch('/:id', (0, validate_1.validate)(bill_validation_1.updateBillSchema), bill_controller_1.BillController.updateBill);
+router.delete('/:id', bill_controller_1.BillController.deleteBill);
+exports.default = router;
