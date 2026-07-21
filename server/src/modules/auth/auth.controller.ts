@@ -3,17 +3,21 @@ import { AuthService } from './auth.service';
 import { verifyRefreshToken } from '../../utils/jwt';
 import { env } from '../../config/env';
 
+const isProduction = env.NODE_ENV === 'production';
+
+const cookieOptions = {
+  httpOnly: true,
+  secure: isProduction,
+  sameSite: (isProduction ? 'none' : 'strict') as 'none' | 'strict',
+  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+};
+
 export class AuthController {
   static async register(req: Request, res: Response): Promise<void> {
     try {
       const result = await AuthService.register(req.body);
       
-      res.cookie('refreshToken', result.refreshToken, {
-        httpOnly: true,
-        secure: env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      });
+      res.cookie('refreshToken', result.refreshToken, cookieOptions);
 
       res.status(201).json({ user: result.user, accessToken: result.accessToken });
     } catch (error: any) {
@@ -29,12 +33,7 @@ export class AuthController {
     try {
       const result = await AuthService.login(req.body);
       
-      res.cookie('refreshToken', result.refreshToken, {
-        httpOnly: true,
-        secure: env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        maxAge: 7 * 24 * 60 * 60 * 1000,
-      });
+      res.cookie('refreshToken', result.refreshToken, cookieOptions);
 
       res.json({ user: result.user, accessToken: result.accessToken });
     } catch (error: any) {
@@ -57,12 +56,7 @@ export class AuthController {
       const decoded = verifyRefreshToken(refreshToken);
       const result = await AuthService.refresh(decoded.userId);
 
-      res.cookie('refreshToken', result.refreshToken, {
-        httpOnly: true,
-        secure: env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        maxAge: 7 * 24 * 60 * 60 * 1000,
-      });
+      res.cookie('refreshToken', result.refreshToken, cookieOptions);
 
       res.json({ accessToken: result.accessToken });
     } catch (error) {

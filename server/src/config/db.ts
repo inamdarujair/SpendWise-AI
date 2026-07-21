@@ -5,8 +5,11 @@ import { seedDatabase } from '../utils/seed';
 let mongoServer: any;
 
 export const connectDB = async () => {
-  if (env.NODE_ENV === 'production') {
-    // Production: connect ONLY to Atlas via MONGO_URI, no fallback
+  const isProduction = env.NODE_ENV === 'production';
+
+  if (isProduction || env.MONGO_URI.includes('mongodb+srv')) {
+    // Production or Atlas URI: connect ONLY to Atlas via MONGO_URI, no fallback
+    console.log('Connecting to MongoDB Atlas...');
     await mongoose.connect(env.MONGO_URI);
     console.log(`MongoDB Atlas Connected: ${mongoose.connection.host}`);
 

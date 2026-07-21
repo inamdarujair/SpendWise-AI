@@ -30,7 +30,10 @@ const limiter = rateLimit({
 // Middleware
 app.use(helmet());
 app.use(limiter);
-app.use(cors({ origin: true, credentials: true }));
+app.use(cors({
+  origin: env.NODE_ENV === 'production' ? env.CLIENT_URL : true,
+  credentials: true,
+}));
 app.use(express.json());
 app.use(cookieParser());
 
