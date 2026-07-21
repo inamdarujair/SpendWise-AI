@@ -9,6 +9,13 @@ import { subMonths, startOfMonth, addDays } from 'date-fns';
 
 export const seedDatabase = async () => {
   try {
+    // Skip seeding if demo user already exists (safe for Atlas)
+    const existingUser = await User.findOne({ email: 'demo@spendwise.ai' });
+    if (existingUser) {
+      console.log('✅ Demo user already exists. Skipping seed.');
+      return;
+    }
+
     console.log('Seeding data...');
 
     await User.deleteMany();
