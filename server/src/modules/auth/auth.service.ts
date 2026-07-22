@@ -1,11 +1,12 @@
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import { User, IUser } from '../users/user.model';
 import { Category } from '../categories/category.model';
 import { generateTokens } from '../../utils/jwt';
 
 export class AuthService {
   static async register(data: any) {
-    const existingUser = await User.findOne({ email: data.email });
+    const email = data.email.toLowerCase().trim();
+    const existingUser = await User.findOne({ email });
     if (existingUser) {
       throw new Error('Email already in use');
     }
@@ -14,7 +15,7 @@ export class AuthService {
     const passwordHash = await bcrypt.hash(data.password, salt);
 
     const user = new User({
-      email: data.email,
+      email,
       passwordHash,
       name: data.name,
     });
@@ -47,13 +48,16 @@ export class AuthService {
   }
 
   static async login(data: any) {
-    const user = await User.findOne({ email: data.email });
+    const email = data.email.toLowerCase().trim();
+    const user = await User.findOne({ email });
     if (!user) {
+      console.error(`Login failed: No user found for email [${email}]`);
       throw new Error('Invalid credentials');
     }
 
     const isMatch = await bcrypt.compare(data.password, user.passwordHash);
     if (!isMatch) {
+      console.error(`Login failed: Password mismatch for user [${email}]`);
       throw new Error('Invalid credentials');
     }
 

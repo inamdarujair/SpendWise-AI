@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.seedDatabase = void 0;
-const bcrypt_1 = __importDefault(require("bcrypt"));
+const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const user_model_1 = require("../modules/users/user.model");
 const category_model_1 = require("../modules/categories/category.model");
 const transaction_model_1 = require("../modules/transactions/transaction.model");
@@ -27,7 +27,7 @@ const seedDatabase = async () => {
         await budget_model_1.Budget.deleteMany();
         await goal_model_1.Goal.deleteMany();
         await bill_model_1.Bill.deleteMany();
-        const passwordHash = await bcrypt_1.default.hash('password123', 10);
+        const passwordHash = await bcryptjs_1.default.hash('password123', 10);
         const demoUser = await user_model_1.User.create({
             name: 'Organized Aisha',
             email: 'demo@spendwise.ai',

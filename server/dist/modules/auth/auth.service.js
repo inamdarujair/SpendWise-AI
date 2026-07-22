@@ -4,20 +4,21 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthService = void 0;
-const bcrypt_1 = __importDefault(require("bcrypt"));
+const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const user_model_1 = require("../users/user.model");
 const category_model_1 = require("../categories/category.model");
 const jwt_1 = require("../../utils/jwt");
 class AuthService {
     static async register(data) {
-        const existingUser = await user_model_1.User.findOne({ email: data.email });
+        const email = data.email.toLowerCase().trim();
+        const existingUser = await user_model_1.User.findOne({ email });
         if (existingUser) {
             throw new Error('Email already in use');
         }
-        const salt = await bcrypt_1.default.genSalt(10);
-        const passwordHash = await bcrypt_1.default.hash(data.password, salt);
+        const salt = await bcryptjs_1.default.genSalt(10);
+        const passwordHash = await bcryptjs_1.default.hash(data.password, salt);
         const user = new user_model_1.User({
-            email: data.email,
+            email,
             passwordHash,
             name: data.name,
         });
@@ -45,12 +46,15 @@ class AuthService {
         };
     }
     static async login(data) {
-        const user = await user_model_1.User.findOne({ email: data.email });
+        const email = data.email.toLowerCase().trim();
+        const user = await user_model_1.User.findOne({ email });
         if (!user) {
+            console.error(`Login failed: No user found for email [${email}]`);
             throw new Error('Invalid credentials');
         }
-        const isMatch = await bcrypt_1.default.compare(data.password, user.passwordHash);
+        const isMatch = await bcryptjs_1.default.compare(data.password, user.passwordHash);
         if (!isMatch) {
+            console.error(`Login failed: Password mismatch for user [${email}]`);
             throw new Error('Invalid credentials');
         }
         const { accessToken, refreshToken } = (0, jwt_1.generateTokens)(user._id.toString(), user.role);
@@ -81,11 +85,11 @@ class AuthService {
         const user = await user_model_1.User.findById(userId);
         if (!user)
             throw new Error('User not found');
-        const isMatch = await bcrypt_1.default.compare(current, user.passwordHash);
+        const isMatch = await bcryptjs_1.default.compare(current, user.passwordHash);
         if (!isMatch)
             throw new Error('Incorrect current password');
-        const salt = await bcrypt_1.default.genSalt(10);
-        user.passwordHash = await bcrypt_1.default.hash(newPass, salt);
+        const salt = await bcryptjs_1.default.genSalt(10);
+        user.passwordHash = await bcryptjs_1.default.hash(newPass, salt);
         await user.save();
         return true;
     }

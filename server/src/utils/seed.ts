@@ -1,4 +1,4 @@
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import { User } from '../modules/users/user.model';
 import { Category } from '../modules/categories/category.model';
 import { Transaction } from '../modules/transactions/transaction.model';
