@@ -7,10 +7,16 @@ exports.env = void 0;
 const zod_1 = require("zod");
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
+// Diagnostic logging for deployment debugging
+console.log('--- Environment Diagnostics ---');
+console.log('NODE_ENV:', process.env.NODE_ENV || '(not set)');
+console.log('MONGO_URI exists:', !!process.env.MONGO_URI);
+console.log('CLIENT_URL:', process.env.CLIENT_URL || '(not set)');
+console.log('-------------------------------');
 const envSchema = zod_1.z.object({
     NODE_ENV: zod_1.z.enum(['development', 'production', 'test']).default('development'),
     PORT: zod_1.z.string().default('5000'),
-    MONGO_URI: zod_1.z.string(),
+    MONGO_URI: zod_1.z.string().default('mongodb://localhost:27017/spendwise'),
     JWT_ACCESS_SECRET: zod_1.z.string(),
     JWT_REFRESH_SECRET: zod_1.z.string(),
     CLIENT_URL: zod_1.z.string().default('http://localhost:5173'),

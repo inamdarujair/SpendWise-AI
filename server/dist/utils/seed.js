@@ -14,6 +14,12 @@ const bill_model_1 = require("../modules/bills/bill.model");
 const date_fns_1 = require("date-fns");
 const seedDatabase = async () => {
     try {
+        // Skip seeding if demo user already exists (safe for Atlas)
+        const existingUser = await user_model_1.User.findOne({ email: 'demo@spendwise.ai' });
+        if (existingUser) {
+            console.log('✅ Demo user already exists. Skipping seed.');
+            return;
+        }
         console.log('Seeding data...');
         await user_model_1.User.deleteMany();
         await category_model_1.Category.deleteMany();

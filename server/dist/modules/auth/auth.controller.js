@@ -4,16 +4,18 @@ exports.AuthController = void 0;
 const auth_service_1 = require("./auth.service");
 const jwt_1 = require("../../utils/jwt");
 const env_1 = require("../../config/env");
+const isProduction = env_1.env.NODE_ENV === 'production';
+const cookieOptions = {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: (isProduction ? 'none' : 'strict'),
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+};
 class AuthController {
     static async register(req, res) {
         try {
             const result = await auth_service_1.AuthService.register(req.body);
-            res.cookie('refreshToken', result.refreshToken, {
-                httpOnly: true,
-                secure: env_1.env.NODE_ENV === 'production',
-                sameSite: 'strict',
-                maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-            });
+            res.cookie('refreshToken', result.refreshToken, cookieOptions);
             res.status(201).json({ user: result.user, accessToken: result.accessToken });
         }
         catch (error) {
@@ -27,12 +29,7 @@ class AuthController {
     static async login(req, res) {
         try {
             const result = await auth_service_1.AuthService.login(req.body);
-            res.cookie('refreshToken', result.refreshToken, {
-                httpOnly: true,
-                secure: env_1.env.NODE_ENV === 'production',
-                sameSite: 'strict',
-                maxAge: 7 * 24 * 60 * 60 * 1000,
-            });
+            res.cookie('refreshToken', result.refreshToken, cookieOptions);
             res.json({ user: result.user, accessToken: result.accessToken });
         }
         catch (error) {
@@ -52,12 +49,7 @@ class AuthController {
             }
             const decoded = (0, jwt_1.verifyRefreshToken)(refreshToken);
             const result = await auth_service_1.AuthService.refresh(decoded.userId);
-            res.cookie('refreshToken', result.refreshToken, {
-                httpOnly: true,
-                secure: env_1.env.NODE_ENV === 'production',
-                sameSite: 'strict',
-                maxAge: 7 * 24 * 60 * 60 * 1000,
-            });
+            res.cookie('refreshToken', result.refreshToken, cookieOptions);
             res.json({ accessToken: result.accessToken });
         }
         catch (error) {
@@ -65,7 +57,7 @@ class AuthController {
         }
     }
     static async logout(req, res) {
-        res.clearCookie('refreshToken');
+        res.clearCookie('refreshToken', cookieOptions);
         res.json({ message: 'Logged out successfully' });
     }
     static async updateProfile(req, res) {

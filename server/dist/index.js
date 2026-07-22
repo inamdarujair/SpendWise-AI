@@ -22,6 +22,7 @@ const ai_routes_1 = __importDefault(require("./modules/ai/ai.routes"));
 const reports_routes_1 = __importDefault(require("./modules/reports/reports.routes"));
 const admin_routes_1 = __importDefault(require("./modules/admin/admin.routes"));
 const app = (0, express_1.default)();
+app.set('trust proxy', 1);
 const limiter = (0, express_rate_limit_1.default)({
     windowMs: 15 * 60 * 1000,
     max: 200,
@@ -31,7 +32,10 @@ const limiter = (0, express_rate_limit_1.default)({
 // Middleware
 app.use((0, helmet_1.default)());
 app.use(limiter);
-app.use((0, cors_1.default)({ origin: true, credentials: true }));
+app.use((0, cors_1.default)({
+    origin: env_1.env.NODE_ENV === 'production' ? env_1.env.CLIENT_URL : true,
+    credentials: true,
+}));
 app.use(express_1.default.json());
 app.use((0, cookie_parser_1.default)());
 // Routes
